@@ -1,8 +1,9 @@
-// refactoring code to include three components, header, content and total
+// App renders course information
+// 1.1 code refactored to three components
+// 1.2 code includes now also component Part, which renders the information for course parts
 
 // header renders the name of the course
 const Header = (props) => {
-  console.log(props.course)
   return (
     <div>
       <h1>{props.course}</h1>
@@ -10,11 +11,23 @@ const Header = (props) => {
   )
 }
 
-// content renders the course parts
-const Content = (props) => {
+// Part is used to render course information 
+const Part = (props) => {
   return (
     <div>
-      <p> {props.part} and {props.numberOfExercises}</p>
+      <p>{props.section} and {props.numberOfExercises}</p>
+    </div>
+  )
+}
+
+// Content receives the information of course parts and numbers of exercises
+// in an array, and forwards the information for component Part
+const Content = ({ part, numberOfExercises }) => {
+  return (
+    <div>
+      <Part section={part[0]} numberOfExercises={numberOfExercises[0]} />
+      <Part section={part[1]} numberOfExercises={numberOfExercises[1]} />
+      <Part section={part[2]} numberOfExercises={numberOfExercises[2]} />
     </div>
   )
 }
@@ -26,7 +39,6 @@ const Total = (props) => {
       <p>Number of exercises {props.sumFirst + props.sumSecond + props.sumThird} </p>
     </div>
   )
-
 }
 
 const App = () => {
@@ -41,9 +53,7 @@ const App = () => {
   return (
     <div>
       <Header course={course} />
-      <Content part={part1} numberOfExercises={exercises1} />
-      <Content part={part2} numberOfExercises={exercises2} />
-      <Content part={part3} numberOfExercises={exercises3} />
+      <Content part={[part1, part2, part3]} numberOfExercises={[exercises1, exercises2, exercises3]} />
       <Total sumFirst={exercises1} sumSecond={exercises2} sumThird={exercises3} />
     </div>
   )
