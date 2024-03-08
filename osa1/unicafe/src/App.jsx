@@ -3,17 +3,21 @@
 // 1.8. stats are separated to their own component
 // 1.9. feedback stats are not shown if there is no feedback yet
 // 1.10 adding components button and statistics, button is already implemented
+// 1.11 statistics are shown in a html table
 
 import { useState } from 'react'
 
 // component shows one statistic line with text and value
 // sign is optional and  used for percentage value
+// -- stats are presented in a html table, and component returns a table row with two cells for text and value
+// table and div cannot be combined, so div cannot be used 
 const StatisticLine = ({ text, value, sign }) => {
   console.log("important statistic row")
   return (
-    <div>
-      {text} {value} {sign}
-    </div>
+    <tr>
+      <td>{text}</td>
+      <td>{value} {sign}</td>
+    </tr>
   )
 }
 
@@ -35,16 +39,21 @@ const Statistics = ({ good, neutral, bad }) => {
     )
   }
   // otherwise we do have feedback and we use statistic line component to show stats
+  // stats are presented as a html table, and div cannot be used as a wrapper here
+  // table content comes from statistic line component with table rows with content
   return (
-    <div>
-      <h2>statistics</h2>
-      <StatisticLine text="good" value={good} />
-      <StatisticLine text="neutral" value={neutral} />
-      <StatisticLine text="bad" value={bad} />
-      <StatisticLine text="all" value={total} />
-      <StatisticLine text="average" value={average} />
-      <StatisticLine text="positive" value={positive} sign="%" />
-    </div>
+    <table>
+      <tbody>
+        <tr><th><h2>statistics</h2></th></tr>
+        <StatisticLine text="good" value={good} />
+        <StatisticLine text="neutral" value={neutral} />
+        <StatisticLine text="bad" value={bad} />
+        <StatisticLine text="all" value={total} />
+        <StatisticLine text="average" value={average} />
+        <StatisticLine text="positive" value={positive} sign="%" />
+      </tbody>
+    </table>
+
   )
 }
 
