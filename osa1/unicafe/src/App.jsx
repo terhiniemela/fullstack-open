@@ -1,6 +1,7 @@
 // unicafe app for tracking customer feedback 
 // 1.6. & 1.7. the app tracks feedback and renders stats when user interacts with the buttons, stats are included
 // 1.8. stats are separated to their own component
+// 1.9. feedback stats are not shown if there is no feedback yet
 
 import { useState } from 'react'
 
@@ -8,6 +9,16 @@ import { useState } from 'react'
 const Statistics = ({ good, neutral, bad }) => {
   console.log('important statistics')
   const total = good + neutral + bad
+
+  // if there are no clicks, we don't have statistics to show
+  if (total === 0) {
+    return (
+      <div>
+        <h2>statistics</h2>
+        <div>No feedback given</div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -38,19 +49,19 @@ const App = () => {
 
   // good feedback - increasing the counter for state good
   const increaseGood = () => {
-    console.log('increasing, value before', good)
+    console.log('increasing good, value before', good)
     setGood(good + 1)
   }
 
   // neutral feedback - increasing the counter for state neutral
   const increaseNeutral = () => {
-    console.log('increasing, value before', neutral)
+    console.log('increasing neutral, value before', neutral)
     setNeutral(neutral + 1)
   }
 
   // bad feedback - increasing the counter for state bad
   const increaseBad = () => {
-    console.log('increasing, value before', bad)
+    console.log('increasing bad, value before', bad)
     setBad(bad + 1)
   }
 
