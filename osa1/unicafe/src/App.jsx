@@ -12,7 +12,6 @@ import { useState } from 'react'
 // -- stats are presented in a html table, and component returns a table row with two cells for text and value
 // table and div cannot be combined, so div cannot be used 
 const StatisticLine = ({ text, value, sign }) => {
-  console.log("important statistic row")
   return (
     <tr>
       <td>{text}</td>
