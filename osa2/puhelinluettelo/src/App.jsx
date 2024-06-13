@@ -40,14 +40,21 @@ const App = () => {
     event.preventDefault()
     console.log('button cklicket', event.target)
 
+    // create the object here for person data, server generates the id
     const personObject = {
       name: newName,
       number: newNumber
     }
 
+    // adding the person to the json server and to persons array
     // first: check if the name exists in the array of persons, if it exists: alert, if not: add name and number to list
-    persons.some(person => (person.name.toLowerCase() == newName.toLowerCase())) ? alert(`${newName} is already added to phonebook`) : setPersons(persons.concat(personObject))
-
+    persons.some(person => (person.name.toLowerCase() == newName.toLowerCase())) ?
+      alert(`${newName} is already added to phonebook`) :
+      phonebookService
+        .create(personObject)
+        .then(response => {
+          setPersons(persons.concat(response))
+        })
     setNewName('')
     setNewNumber('')
   }
@@ -74,6 +81,26 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
+  // event handler for deleting numbers from phonebook
+  const handleDeleteNumber = (event) => {
+    event.preventDefault()
+    console.log('button cklicket', event.target.id)
+    // check the name for dialog
+    const deleteName = persons.find(person => person.id == event.target.id).name
+    // confirming the user wants to delete the person from the phonebook, if yes then remove the person from the json server and from persons array
+    if (window.confirm("hello do you want to delete " + `${deleteName}`)) {
+      phonebookService
+        .remove(event.target.id)
+        .then(response => {
+          // creating a updated persons list without deleted person id
+          const updatedPersons = persons.filter(person => person.id !== event.target.id)
+          // setting persons list with the updated list, and updating state also renders the list again
+          setPersons(updatedPersons)
+        })
+    }
+  }
+
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -82,8 +109,8 @@ const App = () => {
       <Form onSubmit={addPerson} name={newName} handleNameChange={handleNameChange} number={newNumber} handleNumberChange={handleNumberChange} />
 
       <h2>Numbers</h2>
-      <Numbers showAllValue={showAll} persons={persons} filteredPhonebook={filteredPhonebook} />
-    </div >
+      <Numbers showAllValue={showAll} persons={persons} filteredPhonebook={filteredPhonebook} handleDeleteNumber={handleDeleteNumber} />
+    </div>
   )
 }
 
@@ -113,15 +140,16 @@ const Form = ({ onSubmit, name, handleNameChange, number, handleNumberChange }) 
   )
 }
 
-
 // component for showing the phonebook and numbers
-const Numbers = ({ showAllValue, persons, filteredPhonebook }) => {
+// also creates a button for deleting the person from the phonebook
+const Numbers = ({ showAllValue, persons, filteredPhonebook, handleDeleteNumber }) => {
+
   return (
     <div>
       {
         showAllValue === true ?
-          persons.map(person => <p key={person.name}> {person.name} {person.number}</p>) :
-          filteredPhonebook.map((person) => <p key={person.name}> {person.name} {person.number}</p>)
+          persons.map(person => (<p key={person.name}> {person.name} {person.number} <button id={person.id} onClick={handleDeleteNumber}>delete</button></p>)) :
+          filteredPhonebook.map((person) => <p key={person.name}> {person.name} {person.number} <button id={person.id} onClick={handleDeleteNumber}>delete</button></p>)
       }
     </div>
   )
