@@ -49,14 +49,40 @@ const App = () => {
     // adding the person to the json server and to persons array
     // first: check if the name exists in the array of persons, if it exists: alert, if not: add name and number to list
     persons.some(person => (person.name.toLowerCase() == newName.toLowerCase())) ?
-      alert(`${newName} is already added to phonebook`) :
+      replaceNumber() :
       phonebookService
         .create(personObject)
         .then(response => {
           setPersons(persons.concat(response))
+          setNewName('')
+          setNewNumber('')
         })
-    setNewName('')
-    setNewNumber('')
+
+  }
+
+  const replaceNumber = () => {
+
+    const replaceId = persons.find(person => person.name == newName).id
+    const replaceObject = {
+      name: newName,
+      number: newNumber
+    }
+
+    if (window.confirm("do you want to replace the number for this fine person called " + `${newName}`)) {
+
+      phonebookService
+        .update(replaceId, replaceObject)
+        .then(response => {
+          // updating the persons array with new object, other data stays the same
+          setPersons(persons.map(person => person.name !== newName ? person : response))
+          setNewName('')
+          setNewNumber('')
+        })
+    }
+    else {
+      setNewName('')
+      setNewNumber('')
+    }
   }
 
   // event handler for filter changes
@@ -85,6 +111,7 @@ const App = () => {
   const handleDeleteNumber = (event) => {
     event.preventDefault()
     console.log('button cklicket', event.target.id)
+
     // check the name for dialog
     const deleteName = persons.find(person => person.id == event.target.id).name
     // confirming the user wants to delete the person from the phonebook, if yes then remove the person from the json server and from persons array
