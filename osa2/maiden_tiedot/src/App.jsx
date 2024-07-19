@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import maiden_tiedotService from './services/maiden_tiedot'
-import Country from './components/Country'
+import ListResults from './components/ListResults'
 
+// this app fetches country & weather information data from two apis, user queries data with a search form and
+//  ui views are changed depending on the number of search results
 
 const App = () => {
   // state for all countries fetched from the api
   const [countries, setCountries] = useState([])
-  // state for filtered countries
+  // state for filtered countries to be shown
   const [filteredCountries, setFilteredCountries] = useState([])
-  // state for new search filter
+  // state for search filter
   const [searchFilter, setSearchFilter] = useState('')
-  // state for triggering different results
+  // state for triggering different results for user
   const [showResults, setShowResults] = useState('')
 
 
@@ -22,8 +23,7 @@ const App = () => {
       .getAll()
       .then(response => {
         setCountries(response.data)
-        console.log(response.data)
-        console.log(countries.length)
+        console.log(response.data, countries.length)
       })
       .catch(error => {
         console.log('fetching failed')
@@ -32,24 +32,27 @@ const App = () => {
   }, [])
 
   // event handler for search filter changes
+  // view is rendered differently depending on the number of search results with the state showResults
   const handleFilterChange = (event) => {
     console.log(event.target.value)
     setSearchFilter(event.target.value)
-    const value = event.target.value.toLowerCase()
-    const filtered = countries.filter(country => country.name.common.toLowerCase().includes(value))
-    setFilteredCountries(countries.filter(country => country.name.common.toLowerCase().includes(value)))
-    console.log(filtered)
-    console.log(filtered.length)
+    // countries array is filtered with user input for a country name
+    const filtered = countries.filter(country => country.name.common.toLowerCase().includes(event.target.value.toLowerCase()))
+    setFilteredCountries(filtered)
+    console.log(filtered, filtered.length)
 
+    // over 10 results is too much, so we will not show anything
     if (filtered.length > 10) {
       setShowResults('too many')
       console.log('too many')
     }
+    // ten or less results is ok so user will be shown a list of results 
     else if (filtered.length > 1 && filtered.length <= 10) {
       setShowResults('list')
       console.log('list')
     }
-    else if (filtered.length === 1) {
+    // one result triggers a country information page to be shown 
+    else if (filtered.length == 1) {
       setShowResults('one')
       console.log('one')
     }
@@ -59,59 +62,22 @@ const App = () => {
     }
   }
 
-  // event handler for buttons in country list
+  // event handler for buttons in country list, user selects country information to be shown
+  // if button is clicked, the states need to be updated so that we only show one country
   const handleButtonChange = (event) => {
-    console.log(event.target)
-    const oneCountry = countries.filter(country => country.name.common == event.target.id)
-    console.log(oneCountry, "showing one country after click")
-    // setting the states for one country, updating the filtered countries where there is only one 
-    setFilteredCountries(oneCountry)
+    console.log(event.target.id)
+    const country = countries.filter(country => country.name.common == event.target.id)
+    console.log(country, "showing one country after click")
+    setFilteredCountries(country)
     setShowResults('one')
-  }
-
-  const ListResults = () => {
-
-    if (showResults == 'too many') {
-      return (
-        <div><p>Too many matches, specify another filter.</p></div>
-      )
-    }
-
-    else if (showResults === 'list') {
-      return (
-        <div>
-          {filteredCountries.map(country => <p key={country.name.common}> {country.name.common} <button id={country.name.common} onClick={handleButtonChange}>show</button> </p>)}
-        </div>
-      )
-    }
-
-    else if (showResults === 'one') {
-
-      return (
-        <div>
-          <Country oneCountry={filteredCountries} />
-        </div>
-      )
-    }
-    else if (showResults === 'nothing') {
-      return (
-        <div>Try another search term</div>
-      )
-    }
-
-    return (
-      console.log('start searching pls')
-    )
   }
 
   return (
     <div>
       find countries <input value={searchFilter} onChange={handleFilterChange} />
-      <ListResults countryList={filteredCountries} showResults={showResults} />
+      <ListResults countryList={filteredCountries} showResults={showResults} buttonChange={handleButtonChange} />
     </div>
   )
 }
-
-
 
 export default App
