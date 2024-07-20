@@ -16,6 +16,9 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
   // state for filtered phonebook 
   const [filteredPhonebook, setFilteredPhonebook] = useState([])
+  // state for notification messages
+  const [notificationMessage, setNotificationMessage] = useState(null)
+  const [messageType, setMessageType] = useState('')
 
   // 2.11. changing the app to fetch data from json server using effect hooks
   // notes: 
@@ -53,32 +56,62 @@ const App = () => {
       phonebookService
         .create(personObject)
         .then(response => {
+          setMessageType("notification")
+          setNotificationMessage(
+            `${newName} was added to phonebook`
+          )
+          setTimeout(() => {
+            setNotificationMessage(null)
+            setMessageType(null)
+          }, 5000)
           setPersons(persons.concat(response))
           setNewName('')
           setNewNumber('')
         })
-
   }
 
+  // replacing the number from the server and from the array
   const replaceNumber = () => {
-
+    // search the id for the person to be replaced
     const replaceId = persons.find(person => person.name == newName).id
+    // new object includes the name and new number
     const replaceObject = {
       name: newName,
       number: newNumber
     }
 
+    // prompt if user wants to replace the number  
     if (window.confirm("do you want to replace the number for this fine person called " + `${newName}`)) {
 
+      // updating the server with the new object and clearing the data 
       phonebookService
         .update(replaceId, replaceObject)
         .then(response => {
           // updating the persons array with new object, other data stays the same
+
+          setMessageType("notification")
+          setNotificationMessage(
+            `${newName}'s number was replaced`
+          )
           setPersons(persons.map(person => person.name !== newName ? person : response))
+          setTimeout(() => {
+            setNotificationMessage(null)
+            setMessageType(null)
+          }, 5000)
           setNewName('')
           setNewNumber('')
+
+        })
+        .catch(error => {
+          setMessageType("error")
+          setNotificationMessage("the number was already replaced in the server")
+          setTimeout(() => {
+            setNotificationMessage(null)
+            setMessageType(null)
+          }, 5000)
         })
     }
+    // clear the name and number if we don't want to replace anything
     else {
       setNewName('')
       setNewNumber('')
@@ -114,23 +147,41 @@ const App = () => {
 
     // check the name for dialog
     const deleteName = persons.find(person => person.id == event.target.id).name
+    // creating a updated persons list without deleted person id
+    const updatedPersons = persons.filter(person => person.id !== event.target.id)
     // confirming the user wants to delete the person from the phonebook, if yes then remove the person from the json server and from persons array
     if (window.confirm("hello do you want to delete " + `${deleteName}`)) {
       phonebookService
         .remove(event.target.id)
         .then(response => {
-          // creating a updated persons list without deleted person id
-          const updatedPersons = persons.filter(person => person.id !== event.target.id)
           // setting persons list with the updated list, and updating state also renders the list again
+          setPersons(updatedPersons)
+          console.log(persons)
+          setMessageType("notification")
+          setNotificationMessage(`${deleteName}'s number was deleted`)
+          setTimeout(() => {
+            setNotificationMessage(null)
+            setMessageType(null)
+          }, 5000)
+        })
+        .catch(error => {
+          setMessageType("error")
+          setNotificationMessage("the number was already deleted from the server")
+          setTimeout(() => {
+            setNotificationMessage(null)
+            setMessageType(null)
+          }, 5000)
+          // if the number was already deleted, page needs to be rendered again without it
           setPersons(updatedPersons)
         })
     }
   }
 
-
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} messageType={messageType} />
+
       <Filter value={newFilter} onChange={handleFilterChange} />
 
       <Form onSubmit={addPerson} name={newName} handleNameChange={handleNameChange} number={newNumber} handleNumberChange={handleNumberChange} />
@@ -178,6 +229,19 @@ const Numbers = ({ showAllValue, persons, filteredPhonebook, handleDeleteNumber 
           persons.map(person => (<p key={person.name}> {person.name} {person.number} <button id={person.id} onClick={handleDeleteNumber}>delete</button></p>)) :
           filteredPhonebook.map((person) => <p key={person.name}> {person.name} {person.number} <button id={person.id} onClick={handleDeleteNumber}>delete</button></p>)
       }
+    </div>
+  )
+}
+
+// component for showing notifications
+const Notification = ({ message, messageType }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className={messageType}>
+      {message}
     </div>
   )
 }
