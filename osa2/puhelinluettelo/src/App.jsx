@@ -37,6 +37,16 @@ const App = () => {
       })
   }, [])
   console.log('render', persons.length, 'persons')
+  console.log(persons)
+
+  const alertUser = (message, type) => {
+    setMessageType(type)
+    setNotificationMessage(message)
+    setTimeout(() => {
+      setNotificationMessage(null)
+      setMessageType(null)
+    }, 5000)
+  }
 
   // event handler for adding a person to phone book
   const addPerson = (event) => {
@@ -56,15 +66,13 @@ const App = () => {
       phonebookService
         .create(personObject)
         .then(response => {
-          setMessageType("notification")
-          setNotificationMessage(
-            `${newName} was added to phonebook`
-          )
-          setTimeout(() => {
-            setNotificationMessage(null)
-            setMessageType(null)
-          }, 5000)
+          alertUser(`${newName} was added to phonebook`, "notification")
           setPersons(persons.concat(response))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          alertUser(`${error.response.data.error}`, "error")
           setNewName('')
           setNewNumber('')
         })
@@ -72,6 +80,7 @@ const App = () => {
 
   // replacing the number from the server and from the array
   const replaceNumber = () => {
+
     // search the id for the person to be replaced
     const replaceId = persons.find(person => person.name == newName).id
     // new object includes the name and new number
@@ -82,33 +91,28 @@ const App = () => {
 
     // prompt if user wants to replace the number  
     if (window.confirm("do you want to replace the number for this fine person called " + `${newName}`)) {
-
       // updating the server with the new object and clearing the data 
       phonebookService
         .update(replaceId, replaceObject)
         .then(response => {
+          console.log(response, 'vastaus')
+          if (response == null) {
+            alertUser("person was already deleted from the server", "error")
+            setPersons(persons.filter(person => person.name !== newName))
+            setNewName('')
+            setNewNumber('')
+            return
+          }
           // updating the persons array with new object, other data stays the same
-
-          setMessageType("notification")
-          setNotificationMessage(
-            `${newName}'s number was replaced`
-          )
+          alertUser(`${newName}'s number was replaced`, "notification")
           setPersons(persons.map(person => person.name !== newName ? person : response))
-          setTimeout(() => {
-            setNotificationMessage(null)
-            setMessageType(null)
-          }, 5000)
           setNewName('')
           setNewNumber('')
-
-        })
-        .catch(error => {
-          setMessageType("error")
-          setNotificationMessage("the number was already replaced in the server")
-          setTimeout(() => {
-            setNotificationMessage(null)
-            setMessageType(null)
-          }, 5000)
+        }).catch(error => {
+          console.log(error.response.data.error)
+          alertUser(`${error.response.data.error}`, "error")
+          setNewName('')
+          setNewNumber('')
         })
     }
     // clear the name and number if we don't want to replace anything
@@ -156,15 +160,13 @@ const App = () => {
         .then(response => {
           // setting persons list with the updated list, and updating state also renders the list again
           setPersons(updatedPersons)
-          console.log(persons)
           setMessageType("notification")
           setNotificationMessage(`${deleteName}'s number was deleted`)
           setTimeout(() => {
             setNotificationMessage(null)
             setMessageType(null)
           }, 5000)
-        })
-        .catch(error => {
+        }).catch(error => {
           setMessageType("error")
           setNotificationMessage("the number was already deleted from the server")
           setTimeout(() => {
