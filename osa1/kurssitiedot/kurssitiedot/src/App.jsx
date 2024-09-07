@@ -2,6 +2,8 @@
 // 1.1 code refactored to three components
 // 1.2 code includes now also component Part, which renders the information for course parts
 // 1.3 course information transformed to objects
+// 1.4. course information presented as an array of objects
+// 1.5. course information presented as an object
 
 // header renders the name of the course
 

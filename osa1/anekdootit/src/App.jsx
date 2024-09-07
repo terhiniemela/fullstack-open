@@ -19,7 +19,7 @@ const App = () => {
     'The only way to go fast, is to go well.'
   ]
 
-  // prefilled array for points filled with zeroes
+  // prefilled array for points - length same as for anecdotes, filled with zeroes. 
   const prefilled = Array(anecdotes.length).fill(0)
 
   // state for selected anecdote, in the beginning the state gets a random number from range 0-anecdotes.length-1 to select the anecdote
@@ -29,7 +29,7 @@ const App = () => {
   // state for the index of most voted anecdote
   const [mostVotedIndex, setMostVotedIndex] = useState(0)
 
-  // 
+  // function for updating state for selected anecdote
   const updateSelected = () => {
     console.log("updating selected anecdote, state before", selected)
     // setting selected with a random number from range 0-anecdotes.length-1
@@ -37,6 +37,7 @@ const App = () => {
     console.log(selected)
   }
 
+  // function for updating vote points for anecdotes, updating state for points and most voted anecdote
   const updatePoints = () => {
     console.log(selected)
     console.log("starting voting, points before", points)
@@ -57,6 +58,7 @@ const App = () => {
     setMostVotedIndex(mostVoted)
   }
 
+  // page renders anecdote of the day with vote & next anecdote-button, with vote history information
   return (
     <div>
       <h2>Anecdote of the day</h2>

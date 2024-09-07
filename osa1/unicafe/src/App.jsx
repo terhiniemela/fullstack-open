@@ -15,10 +15,11 @@ const StatisticLine = ({ text, value, sign }) => {
   return (
     <tr>
       <td>{text}</td>
-      <td>{value} {sign}</td>
+      <td>{value} {sign} </td>
     </tr>
   )
 }
+
 
 // component of Statistics renders all the statistics of feedback
 const Statistics = ({ good, neutral, bad }) => {
@@ -50,6 +51,8 @@ const Statistics = ({ good, neutral, bad }) => {
         <StatisticLine text="all" value={total} />
         <StatisticLine text="average" value={average} />
         <StatisticLine text="positive" value={positive} sign="%" />
+        <Test text="wut" person={{name:"tepa", age:'27'}} />
+        
       </tbody>
     </table>
 
